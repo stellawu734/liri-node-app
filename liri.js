@@ -31,11 +31,11 @@ if(command === 'my-tweets') {
 };
 //spotify-this-song(artist,name,preview link, album, default "The Sign" by Ace of Base)
 if(command === 'spotify-this-song'){
-	var songName = process.argv.slice(3,process.argv.length).toString();
+	var songName = process.argv.slice(3,process.argv.length).toString().replace(/["']/g, "");
 	if(songName===''){
 		songName = 'The Sign';
 	} else {
-		soneNmae = process.argv.slice(3,process.argv.length).toString();
+		soneNmae = process.argv.slice(3,process.argv.length).toString().replace(/["']/g, "");
 	};
 	
 	console.log('Searching results for '+songName+' ...');
@@ -58,27 +58,26 @@ if(command === 'spotify-this-song'){
 }
 //movie-this(IMDB title, year, IMDB Rating, country produced,language,plot,actors.RT Rating and URL - default Mr.Nobody)
 if(command ==='movie-this'){
-	var movieName = process.argv.slice(3,process.argv.length).toString();
+	var movieName = process.argv.slice(3,process.argv.length).toString().replace(/["']/g, "");
 	if(movieName===''){
 		movieName = 'Mr.Nobody';
 	} else {
-		movieName = process.argv.slice(3,process.argv.length).toString();
+		movieName = process.argv.slice(3,process.argv.length).toString().replace(/["']/g, "");
 	}
 	console.log('Searching results for '+movieName+' ...');
-	var omdb = require('omdb');
-	omdb.search(movieName,function(err,movies){
-		if(err){
-			console.log('error!');
-		} 
-		if(movies.length < 1) {
-        return console.log('No movies were found!');
-	    }
-	 
-	   for (var i = 0; i < movies.length; i++) {
-	   	console.log(movies[i].title, movies[i].year);
-	   	//need to figure out why other properties are undefined
-	   }
-	})
+	var request = require('request');
+	request('http://www.omdbapi.com/?t='+movieName+'&tomatoes=true&plot=short&r=json', function (error, response, body) {
+
+		if (!error && response.statusCode == 200) {
+
+			console.log(JSON.parse(body)['Title']+" "+JSON.parse(body)['Year']);
+			console.log("IMDB rating: " + JSON.parse(body)['imdbRating']);
+			console.log("Country: "+JSON.parse(body)['Country']+"; Language: "+JSON.parse(body)['Language']);
+			console.log("Plot: "+JSON.parse(body)['Plot']);
+			console.log("Actors: "+JSON.parse(body)['Actors'])
+			console.log("Rotten Tomatoes Rating: "+JSON.parse(body)['tomatoRating']+"; Rotten Tomatoes URL: "+JSON.parse(body)['tomatoURL']);
+		}
+	});
 }
 
 //do-what-it-says(fs - take text inside random and use it to call commands)
@@ -89,6 +88,8 @@ if(command === 'do-what-it-says'){
 		return console.log('error');
 	} else {
 		console.log(data);
+		var run = "node liri.js "+data;
+		console.log(run);
 	}
 
 	});
