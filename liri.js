@@ -5,8 +5,7 @@ var accessTokenKey = key.twitterKeys.access_token_key;
 var accessTokenSecret = key.twitterKeys.access_token_secret;
 var command = process.argv[2];
 
-//take in command my-tweets(last 20 tweets and when created)
-if(command === 'my-tweets') {
+function twitter() {
 	var twitter = require('twitter');
 	var client = new twitter({
 		consumer_key: consumerKey,
@@ -28,14 +27,14 @@ if(command === 'my-tweets') {
 			console.log('error!');
 		}
 	})
-};
-//spotify-this-song(artist,name,preview link, album, default "The Sign" by Ace of Base)
-if(command === 'spotify-this-song'){
-	var songName = process.argv.slice(3,process.argv.length).toString().replace(/["']/g, "");
+}
+
+function spotify(song) {
+	var songName = song.replace(/["']/g, "");
 	if(songName===''){
 		songName = 'The Sign';
 	} else {
-		soneNmae = process.argv.slice(3,process.argv.length).toString().replace(/["']/g, "");
+		soneNmae = song.replace(/["']/g, "");
 	};
 	
 	console.log('Searching results for '+songName+' ...');
@@ -54,15 +53,15 @@ if(command === 'spotify-this-song'){
 				}
 			}
 			
-	})
+	})	
 }
-//movie-this(IMDB title, year, IMDB Rating, country produced,language,plot,actors.RT Rating and URL - default Mr.Nobody)
-if(command ==='movie-this'){
-	var movieName = process.argv.slice(3,process.argv.length).toString().replace(/["']/g, "");
+
+function movie(movie) {
+var movieName = movie.replace(/["']/g, "");
 	if(movieName===''){
 		movieName = 'Mr.Nobody';
 	} else {
-		movieName = process.argv.slice(3,process.argv.length).toString().replace(/["']/g, "");
+		movieName = movie.replace(/["']/g, "");
 	}
 	console.log('Searching results for '+movieName+' ...');
 	var request = require('request');
@@ -80,6 +79,18 @@ if(command ==='movie-this'){
 	});
 }
 
+if(command === 'my-tweets') {
+	twitter();
+};
+//spotify-this-song(artist,name,preview link, album, default "The Sign" by Ace of Base)
+if(command === 'spotify-this-song'){
+	spotify(process.argv.slice(3,process.argv.length).toString());
+}
+//movie-this(IMDB title, year, IMDB Rating, country produced,language,plot,actors.RT Rating and URL - default Mr.Nobody)
+if(command ==='movie-this'){
+	movie(process.argv.slice(3,process.argv.length).toString());
+}
+
 //do-what-it-says(fs - take text inside random and use it to call commands)
 if(command === 'do-what-it-says'){
 	var fs = require('fs');
@@ -87,11 +98,20 @@ if(command === 'do-what-it-says'){
 	if (error){
 		return console.log('error');
 	} else {
-		console.log(data);
-		var run = "node liri.js "+data;
-		console.log(run);
+		var index = data.indexOf(' ');
+		var command = data.substr(0, index);
+		var input = data.substr(index + 1);
+
+		switch (command) {
+			case 'spotify-this-song':
+				spotify(input);
+				break;
+			case 'movie-this':
+				movie(input);
+				break;
+		}
 	}
 
 	});
-	//need to figure out how to run command in node automatically
+	
 }
